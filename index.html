@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DS Prompt Library</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0a1628;
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --cream: #f9f6f0;
+      --white: #ffffff;
+      --gray: #6b7280;
+      --gray-light: #f3f0ea;
+      --card-bg: #ffffff;
+      --shadow: 0 2px 16px rgba(10,22,40,0.08);
+      --radius: 14px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--navy);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--navy);
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--gold);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .header-title {
+      font-family: 'Playfair Display', serif;
+      color: var(--white);
+      font-size: 1.2rem;
+      letter-spacing: 0.02em;
+    }
+
+    .header-title span {
+      color: var(--gold);
+    }
+
+    .header-badge {
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #162544 60%, #1e3560 100%);
+      padding: 56px 40px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 span { color: var(--gold); }
+
+    .hero-sub {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.95rem;
+      font-weight: 300;
+      max-width: 520px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    /* SEARCH & FILTER */
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 240px;
+      max-width: 420px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray);
+      font-size: 15px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 16px 12px 40px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255,255,255,0.12);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: background 0.2s;
+      backdrop-filter: blur(6px);
+    }
+
+    .search-input::placeholder { color: rgba(255,255,255,0.45); }
+    .search-input:focus { background: rgba(255,255,255,0.2); }
+
+    .filter-btn {
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(201,168,76,0.35);
+      background: transparent;
+      color: rgba(255,255,255,0.75);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--gold);
+      color: var(--navy);
+      border-color: var(--gold);
+      font-weight: 600;
+    }
+
+    /* STATS BAR */
+    .stats-bar {
+      background: var(--white);
+      padding: 16px 40px;
+      display: flex;
+      gap: 32px;
+      border-bottom: 1px solid #e8e2d8;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    .stat strong {
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .stat-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+
+    /* MAIN LAYOUT */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 40px 80px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      margin-top: 40px;
+    }
+
+    .section-header:first-child { margin-top: 0; }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, #d4cfc5, transparent);
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+
+    /* CARDS GRID */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid #ede8df;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(10,22,40,0.13);
+      border-color: var(--gold-light);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    .card.technician::before  { background: #3b82f6; }
+    .card.triage::before      { background: var(--gold); }
+    .card.communication::before { background: #10b981; }
+    .card.manager::before     { background: #8b5cf6; }
+    .card.reporting::before   { background: #ef4444; }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .tag.technician  { background: #eff6ff; color: #3b82f6; }
+    .tag.triage      { background: #fef9ec; color: #b8860b; }
+    .tag.communication { background: #ecfdf5; color: #10b981; }
+    .tag.manager     { background: #f5f3ff; color: #8b5cf6; }
+    .tag.reporting   { background: #fef2f2; color: #ef4444; }
+
+    .copy-btn {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      border: 1px solid #e5e0d8;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--gray);
+      transition: all 0.18s;
+    }
+
+    .copy-btn:hover { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .card-desc {
+      font-size: 0.83rem;
+      color: var(--gray);
+      line-height: 1.55;
+      margin-bottom: 16px;
+    }
+
+    .card-prompt {
+      background: var(--gray-light);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.8rem;
+      color: #4b5563;
+      line-height: 1.55;
+      font-style: italic;
+      border-left: 3px solid var(--gold);
+      display: none;
+    }
+
+    .card.expanded .card-prompt { display: block; }
+
+    .card-footer {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .hashtag {
+      font-size: 0.72rem;
+      color: var(--gold);
+      font-weight: 500;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,22,40,0.55);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--white);
+      border-radius: 18px;
+      max-width: 600px;
+      width: 90%;
+      padding: 36px;
+      position: relative;
+      animation: modalIn 0.25s ease;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1px solid #e5e0d8;
+      background: transparent;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gray);
+    }
+
+    .modal-close:hover { background: #f3f0ea; }
+
+    .modal-tag { margin-bottom: 16px; }
+
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+
+    .modal-desc {
+      font-size: 0.9rem;
+      color: var(--gray);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .modal-prompt-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    .modal-prompt {
+      background: var(--gray-light);
+      border-radius: 10px;
+      padding: 18px;
+      font-size: 0.88rem;
+      color: #374151;
+      line-height: 1.65;
+      border-left: 3px solid var(--gold);
+      margin-bottom: 20px;
+      white-space: pre-wrap;
+    }
+
+    .modal-copy-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .modal-copy-btn:hover { background: var(--gold); color: var(--navy); }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: var(--navy);
+      color: var(--white);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      z-index: 300;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.25s;
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.78rem;
+      color: var(--gray);
+      border-top: 1px solid #e8e2d8;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 640px) {
+      header { padding: 0 20px; }
+      .hero  { padding: 40px 20px 36px; }
+      .hero h1 { font-size: 1.8rem; }
+      .stats-bar { padding: 14px 20px; gap: 16px; flex-wrap: wrap; }
+      main { padding: 28px 20px 60px; }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-brand">
+    <div class="header-icon">✦</div>
+    <div class="header-title">Distributed <span>Services</span></div>
+  </div>
+  <div class="header-badge">Powered by AI</div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Distributed Services · BOK Financial IT</div>
+  <h1>DS Prompt <span>Library</span></h1>
+  <p class="hero-sub">Ready-to-use AI prompts built for the Distributed Services team. Copy, customize, and use in Copilot, ChatGPT, or any AI tool.</p>
+  <div class="controls">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" type="text" placeholder="Search prompts, tags, tools..." oninput="filterCards(this.value)" />
+    </div>
+    <button class="filter-btn active" onclick="filterByCategory('all', this)">All</button>
+    <button class="filter-btn" onclick="filterByCategory('technician', this)">Technician</button>
+    <button class="filter-btn" onclick="filterByCategory('triage', this)">Ticket Triage</button>
+    <button class="filter-btn" onclick="filterByCategory('communication', this)">User Comms</button>
+    <button class="filter-btn" onclick="filterByCategory('manager', this)">Manager</button>
+    <button class="filter-btn" onclick="filterByCategory('reporting', this)">Reporting</button>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat"><span class="stat-dot" style="background:#3b82f6"></span><strong>5</strong>&nbsp;Technician</div>
+  <div class="stat"><span class="stat-dot" style="background:#c9a84c"></span><strong>3</strong>&nbsp;Ticket Triage</div>
+  <div class="stat"><span class="stat-dot" style="background:#10b981"></span><strong>3</strong>&nbsp;User Comms</div>
+  <div class="stat"><span class="stat-dot" style="background:#8b5cf6"></span><strong>2</strong>&nbsp;Manager</div>
+  <div class="stat"><span class="stat-dot" style="background:#ef4444"></span><strong>2</strong>&nbsp;Reporting</div>
+  <div class="stat" style="margin-left:auto"><strong id="visible-count">15</strong>&nbsp;prompts total</div>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div id="cards-container">
+
+    <!-- TECHNICIAN -->
+    <div class="section-header" data-section="technician">
+      <span class="section-label">Technician</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="cards-grid" id="grid-technician">
+
+      <div class="card technician" data-category="technician" data-tags="servicenow triage daily use" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag technician">Technician</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Summarize & Prioritize My Open Tickets</div>
+        <div class="card-desc">Quickly triage your queue by asking AI to rank and summarize your open incidents.</div>
+        <div class="card-prompt">Here are my open ServiceNow tickets: [paste ticket list]. Please summarize each one in one sentence and rank them by urgency. Flag any that appear to be SLA-risk or have been open more than 3 days.</div>
+        <div class="card-footer">
+          <span class="hashtag">#ServiceNow</span>
+          <span class="hashtag">#Triage</span>
+          <span class="hashtag">#Daily Use</span>
+        </div>
+      </div>
+
+      <div class="card technician" data-category="technician" data-tags="servicenow documentation compliance" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag technician">Technician</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Draft a Resolution Note for a Closed Ticket</div>
+        <div class="card-desc">Generate a clear, compliant resolution note from your troubleshooting notes.</div>
+        <div class="card-prompt">I just resolved a ticket with the following notes: [paste notes]. Please write a professional resolution note in 3-4 sentences suitable for the ServiceNow work notes field. Use past tense and include what was done, why, and the outcome.</div>
+        <div class="card-footer">
+          <span class="hashtag">#ServiceNow</span>
+          <span class="hashtag">#Documentation</span>
+          <span class="hashtag">#Compliance</span>
+        </div>
+      </div>
+
+      <div class="card technician" data-category="technician" data-tags="troubleshooting windows intune" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag technician">Technician</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Troubleshoot a Windows Device Issue</div>
+        <div class="card-desc">Walk through a structured troubleshooting path for common endpoint problems.</div>
+        <div class="card-prompt">A user is experiencing [describe issue] on a Windows 11 device managed by Intune. They have already tried [steps taken]. What are the next 5 troubleshooting steps I should try, in order? Include any relevant event log checks or PowerShell commands.</div>
+        <div class="card-footer">
+          <span class="hashtag">#Troubleshooting</span>
+          <span class="hashtag">#Windows</span>
+          <span class="hashtag">#Intune</span>
+        </div>
+      </div>
+
+      <div class="card technician" data-category="technician" data-tags="knowledge base documentation" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag technician">Technician</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Write a Knowledge Base Article</div>
+        <div class="card-desc">Turn raw fix notes into a polished, reusable KB article for the team.</div>
+        <div class="card-prompt">I fixed an issue where [describe problem and fix]. Please write a ServiceNow knowledge base article with: a clear title, a symptom section, a cause section, and a step-by-step resolution. Keep language simple and suitable for a Level 1 technician.</div>
+        <div class="card-footer">
+          <span class="hashtag">#KnowledgeBase</span>
+          <span class="hashtag">#Documentation</span>
+        </div>
+      </div>
+
+      <div class="card technician" data-category="technician" data-tags="nexthink dex device health" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag technician">Technician</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Interpret a Nexthink Device Alert</div>
+        <div class="card-desc">Decode a Nexthink alert and get a suggested remediation action.</div>
+        <div class="card-prompt">I have a Nexthink alert that says: [paste alert text]. The device belongs to [role/department]. What does this alert mean, what is the likely user impact, and what remediation steps should I take first?</div>
+        <div class="card-footer">
+          <span class="hashtag">#Nexthink</span>
+          <span class="hashtag">#DEX</span>
+          <span class="hashtag">#DeviceHealth</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TICKET TRIAGE -->
+    <div class="section-header" data-section="triage">
+      <span class="section-label">Ticket Triage</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="cards-grid" id="grid-triage">
+
+      <div class="card triage" data-category="triage" data-tags="servicenow categorization routing" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag triage">Ticket Triage</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Categorize & Route an Incoming Ticket</div>
+        <div class="card-desc">Instantly classify a new ticket and suggest the correct assignment group.</div>
+        <div class="card-prompt">Here is a new ticket description: [paste ticket]. Based on BOKF's Distributed Services structure, suggest the correct category, subcategory, and assignment group. Explain your reasoning in one sentence.</div>
+        <div class="card-footer">
+          <span class="hashtag">#ServiceNow</span>
+          <span class="hashtag">#Categorization</span>
+          <span class="hashtag">#Routing</span>
+        </div>
+      </div>
+
+      <div class="card triage" data-category="triage" data-tags="sla risk escalation" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag triage">Ticket Triage</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Identify SLA Risk in My Queue</div>
+        <div class="card-desc">Scan a ticket queue for SLA breach risk and flag escalation candidates.</div>
+        <div class="card-prompt">Here is my current ticket queue with open dates and priorities: [paste queue]. Identify any tickets at risk of breaching SLA in the next 4 hours. List them in priority order and suggest whether to escalate, reassign, or expedite each one.</div>
+        <div class="card-footer">
+          <span class="hashtag">#SLA</span>
+          <span class="hashtag">#Risk</span>
+          <span class="hashtag">#Escalation</span>
+        </div>
+      </div>
+
+      <div class="card triage" data-category="triage" data-tags="pattern analysis recurring incidents" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag triage">Ticket Triage</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Spot Recurring Incident Patterns</div>
+        <div class="card-desc">Detect repeat issues before they become a problem trend.</div>
+        <div class="card-prompt">Here are the last 30 days of closed tickets for [team/location]: [paste summary or list]. Identify any recurring patterns or issues that appeared more than twice. Suggest which ones should be turned into a problem record or proactive fix.</div>
+        <div class="card-footer">
+          <span class="hashtag">#Pattern</span>
+          <span class="hashtag">#Analysis</span>
+          <span class="hashtag">#Incidents</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- USER COMMUNICATION -->
+    <div class="section-header" data-section="communication">
+      <span class="section-label">User Communication</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="cards-grid" id="grid-communication">
+
+      <div class="card communication" data-category="communication" data-tags="email user outage notification" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag communication">User Comms</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Draft an Outage Notification Email</div>
+        <div class="card-desc">Communicate a service disruption clearly and professionally to impacted users.</div>
+        <div class="card-prompt">Write a user-facing outage notification email for the following situation: [describe outage, affected system, estimated resolution time]. Keep it under 150 words, use plain language, avoid technical jargon, and include a contact for questions.</div>
+        <div class="card-footer">
+          <span class="hashtag">#Email</span>
+          <span class="hashtag">#Outage</span>
+          <span class="hashtag">#Notification</span>
+        </div>
+      </div>
+
+      <div class="card communication" data-category="communication" data-tags="follow-up ticket update user" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag communication">User Comms</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Send a Ticket Status Update</div>
+        <div class="card-desc">Keep the user informed with a professional, empathetic status update.</div>
+        <div class="card-prompt">I need to update a user on their open ticket. Status: [still in progress / waiting on vendor / escalated]. Context: [brief description]. Write a short, professional update in 2-3 sentences. Be empathetic and give an estimated next step.</div>
+        <div class="card-footer">
+          <span class="hashtag">#FollowUp</span>
+          <span class="hashtag">#TicketUpdate</span>
+          <span class="hashtag">#UserExperience</span>
+        </div>
+      </div>
+
+      <div class="card communication" data-category="communication" data-tags="change notification maintenance window" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag communication">User Comms</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Announce a Maintenance Window</div>
+        <div class="card-desc">Notify users of planned downtime in a clear, reassuring way.</div>
+        <div class="card-prompt">Write a planned maintenance announcement for [system name]. Date/time: [date and duration]. Impact: [what users can't do]. Action needed from users: [save work, log off, etc.]. Keep tone professional but friendly, under 120 words.</div>
+        <div class="card-footer">
+          <span class="hashtag">#Change</span>
+          <span class="hashtag">#Maintenance</span>
+          <span class="hashtag">#Notification</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MANAGER -->
+    <div class="section-header" data-section="manager">
+      <span class="section-label">Manager</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="cards-grid" id="grid-manager">
+
+      <div class="card manager" data-category="manager" data-tags="standup summary teams weekly" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag manager">Manager</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Summarize Team Standup Inputs</div>
+        <div class="card-desc">Turn raw team standup responses into a clean, actionable summary.</div>
+        <div class="card-prompt">Here are this week's standup responses from my team: [paste responses]. Please summarize into: (1) key accomplishments, (2) blockers that need my attention, (3) priorities for this week. Use bullet points and keep it under one page.</div>
+        <div class="card-footer">
+          <span class="hashtag">#Standup</span>
+          <span class="hashtag">#Summary</span>
+          <span class="hashtag">#Weekly</span>
+        </div>
+      </div>
+
+      <div class="card manager" data-category="manager" data-tags="performance coaching feedback" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag manager">Manager</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Draft Constructive Feedback for a Team Member</div>
+        <div class="card-desc">Frame difficult feedback in a way that is specific, fair, and growth-oriented.</div>
+        <div class="card-prompt">I need to give feedback to a team member about [describe behavior or performance issue]. The context is [brief background]. Draft constructive feedback I can deliver verbally, using the SBI model (Situation, Behavior, Impact). Keep it under 200 words and solution-focused.</div>
+        <div class="card-footer">
+          <span class="hashtag">#Performance</span>
+          <span class="hashtag">#Coaching</span>
+          <span class="hashtag">#Feedback</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- REPORTING -->
+    <div class="section-header" data-section="reporting">
+      <span class="section-label">Reporting</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="cards-grid" id="grid-reporting">
+
+      <div class="card reporting" data-category="reporting" data-tags="metrics executive summary viva insights" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag reporting">Reporting</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Write an Executive Metrics Summary</div>
+        <div class="card-desc">Turn raw numbers into a concise narrative for leadership reporting.</div>
+        <div class="card-prompt">Here are this month's IT metrics: [paste data — ticket volume, SLA %, CSAT, etc.]. Write a 3-paragraph executive summary suitable for a VP audience. Highlight wins, flag risks, and end with one recommended action. Use confident, forward-looking language.</div>
+        <div class="card-footer">
+          <span class="hashtag">#Metrics</span>
+          <span class="hashtag">#Executive</span>
+          <span class="hashtag">#Reporting</span>
+        </div>
+      </div>
+
+      <div class="card reporting" data-category="reporting" data-tags="survey csat nexthink weekly report" onclick="openModal(this)">
+        <div class="card-meta">
+          <span class="tag reporting">Reporting</span>
+          <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt(this)">⧉</button>
+        </div>
+        <div class="card-title">Summarize Weekly CSAT Survey Results</div>
+        <div class="card-desc">Quickly distill survey feedback into themes and action items.</div>
+        <div class="card-prompt">Here are this week's ServiceNow CSAT survey responses: [paste responses]. Identify the top 3 positive themes and top 3 areas for improvement. Note any specific technicians mentioned (positive or negative) and suggest one team action based on the feedback.</div>
+        <div class="card-footer">
+          <span class="hashtag">#Survey</span>
+          <span class="hashtag">#CSAT</span>
+          <span class="hashtag">#WeeklyReport</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- end cards-container -->
+</main>
+
+<footer>
+  Distributed Services · BOK Financial IT &nbsp;·&nbsp; DS Prompt Library &nbsp;·&nbsp; Replace placeholder brackets [ ] with your actual content before using any prompt.
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    <div class="modal-tag" id="modal-tag"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-desc" id="modal-desc"></div>
+    <div class="modal-prompt-label">📋 Prompt Template</div>
+    <div class="modal-prompt" id="modal-prompt"></div>
+    <button class="modal-copy-btn" onclick="copyModalPrompt()">⧉ Copy Prompt to Clipboard</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ Copied to clipboard</div>
+
+<script>
+  let activeCategory = 'all';
+
+  function filterByCategory(cat, btn) {
+    activeCategory = cat;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
+  }
+
+  function filterCards(query) {
+    applyFilters(query);
+  }
+
+  function applyFilters(query = '') {
+    query = query.toLowerCase().trim();
+    let visible = 0;
+
+    document.querySelectorAll('.card').forEach(card => {
+      const cat = card.dataset.category;
+      const tags = card.dataset.tags || '';
+      const title = card.querySelector('.card-title').textContent.toLowerCase();
+      const desc = card.querySelector('.card-desc').textContent.toLowerCase();
+
+      const catMatch = activeCategory === 'all' || cat === activeCategory;
+      const queryMatch = !query || title.includes(query) || tags.includes(query) || desc.includes(query);
+
+      if (catMatch && queryMatch) {
+        card.style.display = '';
+        visible++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    // Show/hide section headers
+    ['technician','triage','communication','manager','reporting'].forEach(sec => {
+      const grid = document.getElementById('grid-' + sec);
+      const header = document.querySelector('[data-section="' + sec + '"]');
+      const hasVisible = grid && [...grid.querySelectorAll('.card')].some(c => c.style.display !== 'none');
+      if (header) header.style.display = hasVisible ? '' : 'none';
+    });
+
+    document.getElementById('visible-count').textContent = visible;
+  }
+
+  function openModal(card) {
+    const tag = card.querySelector('.tag').textContent;
+    const tagClass = card.querySelector('.tag').className.replace('tag ', '');
+    const title = card.querySelector('.card-title').textContent;
+    const desc = card.querySelector('.card-desc').textContent;
+    const prompt = card.querySelector('.card-prompt').textContent.trim();
+
+    document.getElementById('modal-tag').innerHTML = `<span class="tag ${tagClass}">${tag}</span>`;
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-desc').textContent = desc;
+    document.getElementById('modal-prompt').textContent = prompt;
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('modal')) closeModalDirect();
+  }
+
+  function closeModalDirect() {
+    document.getElementById('modal').classList.remove('open');
+  }
+
+  function copyModalPrompt() {
+    const text = document.getElementById('modal-prompt').textContent;
+    navigator.clipboard.writeText(text).then(() => showToast());
+  }
+
+  function copyPrompt(btn) {
+    const card = btn.closest('.card');
+    const text = card.querySelector('.card-prompt').textContent.trim();
+    navigator.clipboard.writeText(text).then(() => showToast());
+  }
+
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModalDirect();
+  });
+</script>
+</body>
+</html>
